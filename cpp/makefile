@@ -5,13 +5,17 @@ CC = g++
 CFLAGS = -Wall
 CFLAGS += -g
 # ****************************************************
-#Other make file related stuff
-TOPDIR := .
+#Managing Directories
+PROJDIR := $(realpath($(CURDIR))
+SOURCEDIR := $(PROJDIR)/sources
 
+DIRS = Folder0 Folder1 Folder2
+SOURCEDIRS = $(foreach dir, $(DIRS), $(addprefix $(SOURCEDIR)/, $(dir)))
 # ****************************************************
 # Targets needed to bring the executable up to date
 
-TARGET = main
+#My final executable
+TARGET = app.exe
 
 all: $(TARGET)
 
