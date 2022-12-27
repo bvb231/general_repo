@@ -5,23 +5,21 @@ CC = g++
 CFLAGS = -Wall
 CFLAGS += -g
 # ****************************************************
-#Managing Directories
-PROJDIR := $(realpath($(CURDIR))
-SOURCEDIR := $(PROJDIR)/sources
-
-DIRS = Folder0 Folder1 Folder2
-SOURCEDIRS = $(foreach dir, $(DIRS), $(addprefix $(SOURCEDIR)/, $(dir)))
-# ****************************************************
 # Targets needed to bring the executable up to date
+$INCLUDES = -I.
+
+all: TARGET
 
 #My final executable
-TARGET = app.exe
+TARGET: main.o doPrint.o
+	$(CC) -o game main.o doPrint.o	
 
-all: $(TARGET)
+main.o: main.cpp 
+	$(CC) $(CFLAGS) -c main.cpp 
 
-#TODO: I want to link something within a subdirectory
+doPrint.o: test/doPrint.cpp
+	$(CC) $(CFLAGS) -c test/doPrint.cpp
 
-main: main.cpp test/doPrint.cpp
-	$(CC) $(CFLAGS) -o main_build main.cpp test/doPrint.cpp
-	#$(CC) $(CFLAGS)  -o test main.cpp doPrint.cpp -I.
 
+clean: 
+	rm -f game *.o
