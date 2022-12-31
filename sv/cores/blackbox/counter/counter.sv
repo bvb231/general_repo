@@ -6,6 +6,21 @@ module counter
 );
 
 
+`ifdef COCOTB_SIM
+   initial begin
+      $dumpfile("unit_test.vcd");
+      $dumpvars(0,counter);
+      #1;
+   end
+`endif
+
+
+
+
+
+
+
+
 always @(posedge clock) begin 
    if(reset) begin 
       count <= '0;
