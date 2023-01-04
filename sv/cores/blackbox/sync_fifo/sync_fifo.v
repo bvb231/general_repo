@@ -8,28 +8,28 @@
 
 module sync_fifo 
 #(
-	parameter P_DATA_WIDITH = 16,
+	parameter P_DATA_WIDTH = 16,
 	parameter P_FIFO_DEPTH  = 16
 )
 (
-	input wire clk,
-	input wire rst,
+	input clk,
+	input rst,
 
 	//
-	input reg S_AXIS_T_VALID,
-	input reg S_AXIS_T_READY,
-	input reg [P_DATA_WIDTH-1:0] S_AXIS_T_DATA,
-	input reg S_AXIS_T_LAST,
+	input S_AXIS_T_VALID,
+	output reg S_AXIS_T_READY,
+	input [P_DATA_WIDTH-1:0] S_AXIS_T_DATA,
+	input S_AXIS_T_LAST,
 	
    //
-	output wire M_AXIS_T_VALID,
-	output wire M_AXIS_T_READY,
-	output wire M_AXIS_T_DATA,
-	output wire M_AXIS_T_LAST
-)
+	output reg M_AXIS_T_VALID,
+	input M_AXIS_T_READY,
+	output reg M_AXIS_T_DATA,
+	output reg M_AXIS_T_LAST
+);
 
 wire input_valid;
-
+reg output_valid;
 
 
 assign input_valid = S_AXIS_T_VALID & S_AXIS_T_READY;
@@ -113,3 +113,5 @@ always@(posedge clk) begin
 end
 
 assign output_valid = M_AXIS_T_VALID & M_AXIS_T_READY;
+
+endmodule
