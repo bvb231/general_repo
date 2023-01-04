@@ -16,23 +16,31 @@ module sync_fifo
 	input rst,
 
 	//
-	input S_AXIS_T_VALID,
-	output reg S_AXIS_T_READY,
-	input [P_DATA_WIDTH-1:0] S_AXIS_T_DATA,
-	input S_AXIS_T_LAST,
+	input s_axis_tvalid,
+	output reg s_axis_tready,
+	input [P_DATA_WIDTH-1:0] s_axis_tdata,
+	input s_axis_tlast,
 	
    //
-	output reg M_AXIS_T_VALID,
-	input M_AXIS_T_READY,
-	output reg M_AXIS_T_DATA,
-	output reg M_AXIS_T_LAST
+	output reg m_axis_tvalid,
+	input m_axis_tready,
+	output reg [P_DATA_WIDTH-1:0] m_axis_tdata,
+	output reg m_axis_tlast
 );
+
+`ifdef COCOTB_SIM
+   initial begin
+      $dumpfile("unit_test.vcd");
+      $dumpvars(0,sync_fifo);
+      #1;
+   end
+`endif
 
 wire input_valid;
 reg output_valid;
 
 
-assign input_valid = S_AXIS_T_VALID & S_AXIS_T_READY;
+assign input_valid = s_axis_tvalid & s_axis_tready;
 
 //FIFO Logic 
 reg [$clog2(P_FIFO_DEPTH)-1:0]   write_pointer;
@@ -43,18 +51,18 @@ reg [P_FIFO_DEPTH-1:0] ram [P_FIFO_DEPTH-1:0];
 //Input flow management. 
 always@(posedge clk) begin 
    if(fill_level == P_FIFO_DEPTH-1) begin 
-      S_AXIS_T_READY <= 1'b0;
+      s_axis_tready <= 1'b0;
    end else begin 
-      S_AXIS_T_READY <= 1'b1; 
+      s_axis_tready <= 1'b1; 
    end
 end
 
-//Output flow management
+//output flow management
 always@(posedge clk) begin 
    if(fill_level == 0) begin 
-      M_AXIS_T_VALID <= 1'b0;
+      m_axis_tvalid <= 1'b0;
    end else begin 
-      M_AXIS_T_VALID <= 1'b1; 
+      m_axis_tvalid <= 1'b1; 
    end
 end
 
@@ -89,6 +97,7 @@ always@(posedge clk) begin
       write_pointer <= '0;
    end else begin
       if(input_valid) begin 
+			ram[write_pointer] <= s_axis_tdata;
          if(write_pointer == P_FIFO_DEPTH-1) begin 
             write_pointer <= '0;
          end else begin
@@ -102,6 +111,7 @@ always@(posedge clk) begin
    if(rst) begin 
       read_pointer <= '0;
    end else begin
+		m_axis_tdata <= ram[read_pointer];
       if(output_valid) begin 
          if(read_pointer == P_FIFO_DEPTH-1) begin 
             read_pointer <= '0;
@@ -112,6 +122,6 @@ always@(posedge clk) begin
    end
 end
 
-assign output_valid = M_AXIS_T_VALID & M_AXIS_T_READY;
+assign output_valid = m_axis_tvalid & m_axis_tready;
 
 endmodule
