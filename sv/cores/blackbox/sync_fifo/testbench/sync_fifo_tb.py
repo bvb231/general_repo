@@ -30,3 +30,9 @@ async def run_test(dut):
     data = [0x09,0x00, 0x00, 0x00, 0x01,0x01,0x55,0xaa,0x12,0x34]
     await axis_source.send(data)
     await axis_source.wait()
+    axis_sink.wait()
+    foo  = await axis_sink.recv()
+    print(foo.tdata)
+    if foo.tdata == data :
+      print("huzza")
+    #await axis_source.send(data)

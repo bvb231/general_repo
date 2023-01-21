@@ -46,7 +46,7 @@ assign input_valid = s_axis_tvalid & s_axis_tready;
 reg [$clog2(P_FIFO_DEPTH)-1:0]   write_pointer;
 reg [$clog2(P_FIFO_DEPTH)-1:0]   read_pointer;
 reg [$clog2(P_FIFO_DEPTH)-1:0]   fill_level;
-reg [P_FIFO_DEPTH-1:0] ram [P_FIFO_DEPTH-1:0];
+reg [P_DATA_WIDTH:0] ram [P_FIFO_DEPTH-1:0];
 
 //Input flow management. 
 always@(posedge clk) begin 
@@ -59,13 +59,20 @@ end
 
 //output flow management
 always@(posedge clk) begin 
-   if(fill_level == 0) begin 
+   if(rst) begin 
       m_axis_tvalid <= 1'b0;
    end else begin 
-      m_axis_tvalid <= 1'b1; 
+      if(fill_level == 0) begin 
+         m_axis_tvalid <= 1'b0;
+      end else if(fill_level == 1 && !input_valid && output_valid) begin 
+         m_axis_tvalid <= 1'b0; 
+      end else begin 
+         m_axis_tvalid <= 1'b1; 
+      end
    end
 end
 
+//assign m_axis_tvalid = (fill_level == 0) ? 1'b0 : 1'b1;
 
 //Fill Level
 always@(posedge clk) begin 
@@ -77,27 +84,20 @@ always@(posedge clk) begin
          write_pointer  <= write_pointer + 1;  
          fill_level <= fill_level + 1;
       end else if(!input_valid && output_valid) begin 
-         fill_level <= fill_level - 1;
+         if(fill_level !=  0) begin
+            fill_level <= fill_level - 1;
+         end
       end
    end
 end
 
-always@(posedge clk) begin 
-   if(rst) begin 
-      write_pointer <= '0;
-      fill_level <= '0;
-   end else begin
-      if(input_valid) begin 
-      end
-   end
-end
 
 always@(posedge clk) begin 
    if(rst) begin 
       write_pointer <= '0;
    end else begin
       if(input_valid) begin 
-			ram[write_pointer] <= s_axis_tdata;
+			ram[write_pointer] <= {s_axis_tdata,s_axis_tlast};
          if(write_pointer == P_FIFO_DEPTH-1) begin 
             write_pointer <= '0;
          end else begin
@@ -111,8 +111,9 @@ always@(posedge clk) begin
    if(rst) begin 
       read_pointer <= '0;
    end else begin
-		m_axis_tdata <= ram[read_pointer];
+		{m_axis_tdata,m_axis_tlast} <= ram[read_pointer];
       if(output_valid) begin 
+		   {m_axis_tdata,m_axis_tlast} <= ram[read_pointer+1];
          if(read_pointer == P_FIFO_DEPTH-1) begin 
             read_pointer <= '0;
          end else begin
