@@ -1,4 +1,5 @@
 import cocotb
+import random 
 
 from cocotb.clock import Clock
 from cocotb.runner import get_runner
@@ -28,11 +29,31 @@ async def run_test(dut):
     await RisingEdge(dut.clk)
 
     data = [0x09,0x00, 0x00, 0x00, 0x01,0x01,0x55,0xaa,0x12,0x34]
+    #await cocotb.start(axis_source.send(data))
     await axis_source.send(data)
-    await axis_source.wait()
+    #await axis_source.wait()
     axis_sink.wait()
     foo  = await axis_sink.recv()
     print(foo.tdata)
     if foo.tdata == data :
       print("huzza")
-    #await axis_source.send(data)
+  
+    #drive_data(clk, data);
+
+
+
+
+
+def generate_data_set
+  data_set[][];
+  random.randint(2,200)
+
+  return data_set
+  
+
+
+# @cocotb.coroutine
+# def drive_data (clk, signal, data):
+#   await axis_source.send(data)
+
+
