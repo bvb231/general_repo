@@ -1,6 +1,6 @@
 module axis_pipe
 #(
-   parameter P_DATA_WIDTH = 8;
+   parameter P_DATA_WIDTH = 8
 )
 (
 	input clk,
@@ -14,8 +14,18 @@ module axis_pipe
    //
 	output reg m_axis_tvalid,
 	input m_axis_tready,
-	output reg [P_DATA_WIDTH-1:0] m_axis_tdata,
-)
+	output reg [P_DATA_WIDTH-1:0] m_axis_tdata
+);
+
+`ifdef COCOTB_SIM
+   initial begin
+      $dumpfile("unit_test.vcd");
+      $dumpvars(0,axis_pipe);
+      #1;
+   end
+`endif
+
+
 reg main_tvalid;
 reg [P_DATA_WIDTH-1:0] main_tdata;
 

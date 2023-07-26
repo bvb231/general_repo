@@ -9,7 +9,7 @@ from cocotb.triggers import RisingEdge
 async def my_first_test(dut):
     """Try accessing the design."""
 
-    clock = Clock(dut.clock, 10, units="us")  # Create a 10us period clock on port clk0
+    clock = Clock(dut.clock, 10, units="ns")  # Create a 10us period clock on port clk0
   
     cocotb.start_soon(clock.start())  # Start the clock 
     await RisingEdge(dut.clock)  # Synchronize with the clock0

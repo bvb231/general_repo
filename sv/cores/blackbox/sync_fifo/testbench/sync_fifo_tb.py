@@ -28,7 +28,7 @@ async def run_test(dut):
     dut.rst.value = 0;
     await RisingEdge(dut.clk)
 
-    data = [0x09,0x00, 0x00, 0x00, 0x01,0x01,0x55,0xaa,0x12,0x34]
+    data = [0x09,0x02, 0x43, 0x32, 0x01,0x01,0x55,0xaa,0x12,0x34]
     #await cocotb.start(axis_source.send(data))
     await axis_source.send(data)
     #await axis_source.wait()
@@ -37,6 +37,8 @@ async def run_test(dut):
     print(foo.tdata)
     if foo.tdata == data :
       print("huzza")
+    else:
+      print("error")
   
     #drive_data(clk, data);
 
@@ -44,11 +46,11 @@ async def run_test(dut):
 
 
 
-def generate_data_set
-  data_set[][];
-  random.randint(2,200)
-
-  return data_set
+#def generate_data_set
+#  data_set[][];
+#  random.randint(2,200)
+#
+#  return data_set
   
 
 
