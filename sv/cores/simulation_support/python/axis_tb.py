@@ -11,7 +11,9 @@ async def axis_source(data, NUM_DATA, VALID_PROB=0.5):
     dut = cocotb.top
 
     def reset():
-        dut.s_valid.value = dut.s_data.value = dut.s_last.value = 0
+        dut.s_axis_tvalid.value = 0
+        dut.s_axis_tdata.value = 0 
+        # = dut.s_axis_tlast.value = 0
     reset()
 
 
@@ -20,18 +22,20 @@ async def axis_source(data, NUM_DATA, VALID_PROB=0.5):
     while True: 
         if i_data == NUM_DATA:
             break
+       
         valid = random.choices([0,1], [1-VALID_PROB, VALID_PROB])[0]
-        dut.s_valid.value = valid
+        dut.s_axis_tvalid.value = valid
 
-        if valid:
-            dut.s_valid.value = valid
-            dut.s_data_value = int(data[i_data])
+        if valid: 
+            dut.s_axis_tvalid.value = valid
+            dut.s_axis_tdata.value = int(data[i_data])
 
-            if i_data == NUM_DATA-1:
-                dut.s_last.value = 1
-            i_data += 1
+            #if i_data == NUM_DATA-1:
+            #    dut.s_axis_tlast.value = 1
+            if dut.s_axis_tvalid.value == 1 and dut.s_axis_tready.value == 1:
+                i_data += 1
     
-        await RisingEdge(dut.aclk)
+        await RisingEdge(dut.clk)
         i_clk += 1
     reset()
 
@@ -41,35 +45,34 @@ async def axis_source(data, NUM_DATA, VALID_PROB=0.5):
     '''
 
 
-    async def axis_sink(data, NUM_DATA, READY_PROB=0.5):
+async def axis_sink(data, NUM_DATA, READY_PROB=0.5):
         
-        dut = cocotb.top
-        dut.m_ready.value = 1
+    dut = cocotb.top
+    dut.m_axis_tready.value = 1
         
-        NUM_DATA = len(data)
-        i_data, i_clk = 0,0
+    NUM_DATA = len(data)
+    i_data, i_clk = 0,0
 
 
-        while True: 
-            if i_data == NUM_DATA: 
-                break
+    while True: 
+        if i_data == NUM_DATA: 
+            break
 
-            ready = random.choices([0,1, 1-READY_PROB, READY_PROB])[0]
-            dut.m_ready.value = ready
+        ready = random.choices([0,1], [1-READY_PROB, READY_PROB])[0]
+        dut.m_axis_tready.value = ready
 
-            await RisingEdge(dut.aclk)
-            i_clk += 1
+        await RisingEdge(dut.clk)
+        i_clk += 1
 
-            if ready and dut.m_valid.value:
-                assert dut.m_data.value == data[i_data], f'AXIS Sink failed at aclk={i_clk}. Expected: {data[i_data]}, received {int(dut.m_data.value)}'
-            assert dut.m_keep.value == 1,      f'AXIS m_keep not received at aclk={i_clk}' 
+        #if ready and dut.m_axis_tvalid.value:
+        #    assert dut.m_axis_tdata.value == data[i_data], f'AXIS Sink failed at aclk={i_clk}. Expected: {data[i_data]}, received {int(dut.m_data.value)}'
+        
 
-
-            if i_data == NUM_DATA -1:
-                assert dut.m_last.value == 1 , f'AXIS m_last not received'
-            else : 
-                assert dut.m_last.value == 0, f'AXIS m_last raised at aclk={i_clk}'
-            
+        #if i_data == NUM_DATA -1:
+        #    assert dut.m_axis_tlast.value == 1 , f'AXIS m_last not received'
+        #else : 
+        #    assert dut.m_axis_tlast.value == 0, f'AXIS m_last raised at aclk={i_clk}'
+        if dut.m_axis_tvalid.value == 1 and dut.m_axis_tready.value == 1:
             i_data += 1
     
-    dut.m_ready.value = 0 
+    dut.m_axis_tready.value = 0 

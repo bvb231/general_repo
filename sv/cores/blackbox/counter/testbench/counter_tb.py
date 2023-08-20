@@ -15,13 +15,12 @@ async def my_first_test(dut):
     await RisingEdge(dut.clock)  # Synchronize with the clock0
 
 
-
+    dut.reset.value = 1
     for cycle in range(10):
-      dut.reset.value = 1;
       await RisingEdge(dut.clock)
 
 
-    dut.reset.value = 0;
+    dut.reset.value = 0
     
     for cycle in range(10):
       await RisingEdge(dut.clock)
