@@ -4,7 +4,8 @@ RM = rm -f
 CXXFLAGS = -g
 
 
-SRCS=hello_world.cpp
+SRCS=hello_world.cpp 
+SRCS+= classes/my_first_class.cpp
 OBJS=$(subst .cc, .o,$(SRCS))
 
 all : hello_world 
@@ -14,4 +15,4 @@ hello_world: $(OBJS)
 
 
 clean: 
-	rm hello_world
+	rm
