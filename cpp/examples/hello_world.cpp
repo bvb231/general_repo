@@ -11,7 +11,7 @@ int main() {
     test = test_obj.return_foo();
     
 
-    std::cout << "Hello World!"<< test;
+    std::cout << "Hello World!\n";
     return 0;
 }
 
