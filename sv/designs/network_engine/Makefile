@@ -51,6 +51,8 @@ VERILATOR_FLAGS += --coverage
 # Add this trace to get a backtrace in gdb
 #VERILATOR_FLAGS += --gdbbt
 
+VERILATOR_FLAGS += --build
+
 # Input files for Verilator
 VERILATOR_INPUT = -f input.vc network_engine.sv sim/network_engine_tb.cpp
 
@@ -67,7 +69,7 @@ endif
 
 run:
 	@echo
-	@echo "-- Verilator tracing example"
+	@echo "-- Verilator Network Engine Test"
 
 	@echo
 	@echo "-- VERILATE ----------------"
@@ -80,13 +82,13 @@ run:
 # 2. Or, run the make rules Verilator does:
 #	$(MAKE) -j -C obj_dir -f Vtop.mk
 # 3. Or, call a submakefile where we can override the rules ourselves:
-	$(MAKE) -j -C obj_dir -f ../Makefile_obj
+	#$(MAKE) -j -C obj_dir -f ../Makefile_obj
 
 	@echo
 	@echo "-- RUN ---------------------"
 	@rm -rf logs
 	@mkdir -p logs
-	obj_dir/Vtop +trace
+	obj_dir/Vnetwork_engine +trace
 
 	@echo
 	@echo "-- COVERAGE ----------------"
