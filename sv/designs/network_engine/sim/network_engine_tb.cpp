@@ -3,6 +3,8 @@
 // This file ONLY is placed into the Public Domain, for any use,
 // without warranty, 2017 by Wilson Snyder.
 //======================================================================
+// SystemC global header
+#include <systemc.h>
 
 // Include common routines
 #include <verilated.h>
@@ -23,11 +25,17 @@ int main(int argc, char** argv, char** env) {
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
     Vnetwork_engine* top = new Vnetwork_engine;
 
+    // Initialize SC model
+    sc_start(1, SC_NS);
+    
     // Simulate until $finish
     while (!Verilated::gotFinish()) {
 
+      // Initialize SC model
+      sc_start(1, SC_NS);
+        
         // Evaluate model
-        top->eval();
+//        top->eval();
     }
 
     // Final model cleanup
