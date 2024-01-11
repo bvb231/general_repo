@@ -1,34 +1,25 @@
-// -*- SystemC -*-
-// DESCRIPTION: Verilator Example: Top level main for invoking SystemC model
+// DESCRIPTION: Verilator: Verilog example module
 //
 // This file ONLY is placed under the Creative Commons Public Domain, for
 // any use, without warranty, 2017 by Wilson Snyder.
 // SPDX-License-Identifier: CC0-1.0
 //======================================================================
 
+#include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_MODULE header-only multiunit test
 // For std::unique_ptr
 #include <memory>
 
-// SystemC global header
-#include <systemc>
-
 // Include common routines
 #include <verilated.h>
-#if VM_TRACE
-#include <verilated_vcd_sc.h>
-#endif
-
-#include <sys/stat.h>  // mkdir
-
-
 
 // Include model header, generated from Verilating "top.v"
-#include "../obj_dir/Vnetwork_engine.h"
+#include "Vnetwork_engine.h"
 
-using namespace sc_core;
-using namespace sc_dt;
+// Legacy function required only so linking works on Cygwin and MSVC++
+double sc_time_stamp() { return 0; }
 
-int sc_main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
     // This is a more complicated example, please also see the simpler examples/make_hello_c.
 
     // Prevent unused variable warnings
@@ -37,96 +28,96 @@ int sc_main(int argc, char* argv[]) {
     // Create logs/ directory in case we have traces to put under it
     Verilated::mkdir("logs");
 
+    // Construct a VerilatedContext to hold simulation time, etc.
+    // Multiple modules (made later below with Vtop) may share the same
+    // context to share time, or modules may have different contexts if
+    // they should be independent from each other.
+
+    // Using unique_ptr is similar to
+    // "VerilatedContext* contextp = new VerilatedContext" then deleting at end.
+    const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
+    // Do not instead make Vtop as a file-scope static variable, as the
+    // "C++ static initialization order fiasco" may cause a crash
+
     // Set debug level, 0 is off, 9 is highest presently used
     // May be overridden by commandArgs argument parsing
-    Verilated::debug(0);
+    contextp->debug(0);
 
     // Randomization reset policy
     // May be overridden by commandArgs argument parsing
-    Verilated::randReset(2);
+    //contextp->randReset(2);
 
-#if VM_TRACE
-    // Before any evaluation, need to know to calculate those signals only used for tracing
-    Verilated::traceEverOn(true);
-#endif
+    // Verilator must compute traced signals
+    contextp->traceEverOn(true);
 
     // Pass arguments so Verilated code can see them, e.g. $value$plusargs
     // This needs to be called before you create any model
-    Verilated::commandArgs(argc, argv);
+    contextp->commandArgs(argc, argv);
 
-    // General logfile
-    std::ios::sync_with_stdio();
-
-    // Define clocks
-    sc_clock clk{"clk", 10, SC_NS, 0.5, 3, SC_NS, true};
-    sc_clock fastclk{"fastclk", 2, SC_NS, 0.5, 2, SC_NS, true};
-
-    // Define interconnect
-    sc_signal<bool> reset;
-    sc_signal<bool> IS_IP;
-    
-    // Construct the Verilated model, from inside Vtop.h
-    // Using unique_ptr is similar to "Vtop* top = new Vtop" then deleting at end
-    const std::unique_ptr<Vnetwork_engine> top{new Vnetwork_engine{"top"}};
-
-    // Attach Vtop's signals to this upper model
-    top->CLK(clk);
-    top->RST(reset);
-    top->IS_IP(IS_IP);
-    // You must do one evaluation before enabling waves, in order to allow
-    // SystemC to interconnect everything for testing.
-    sc_start(SC_ZERO_TIME);
-
-#if VM_TRACE
-    // If verilator was invoked with --trace argument,
-    // and if at run time passed the +trace argument, turn on tracing
-    VerilatedVcdSc* tfp = nullptr;
-    const char* flag = Verilated::commandArgsPlusMatch("trace");
-    if (flag && 0 == std::strcmp(flag, "+trace")) {
-        std::cout << "Enabling waves into logs/vlt_dump.vcd...\n";
-        tfp = new VerilatedVcdSc;
-        top->trace(tfp, 99);  // Trace 99 levels of hierarchy
-        Verilated::mkdir("logs");
-        tfp->open("logs/vlt_dump.vcd");
-    }
-#endif
+    // Construct the Verilated model, from Vtop.h generated from Verilating "top.v".
+    // Using unique_ptr is similar to "Vtop* top = new Vtop" then deleting at end.
+    // "TOP" will be the hierarchical name of the module.
+    const std::unique_ptr<Vnetwork_engine> top{new Vnetwork_engine{contextp.get(), "TOP"}};
+    // Set Vtop's input signals
+    top->CLK= 0;
+    top->RST = 1;
+    top->IS_IP = 0;
 
     // Simulate until $finish
-    while (!Verilated::gotFinish()) {
-#if VM_TRACE
-        // Flush the wave files each cycle so we can immediately see the output
-        // Don't do this in "real" programs, do it in an abort() handler instead
-        if (tfp) tfp->flush();
-#endif
+    //while (!contextp->gotFinish()) {
+    while (contextp->time()<1000) {
+        // Historical note, before Verilator 4.200 Verilated::gotFinish()
+        // was used above in place of contextp->gotFinish().
+        // Most of the contextp-> calls can use Verilated:: calls instead;
+        // the Verilated:: versions just assume there's a single context
+        // being used (per thread).  It's faster and clearer to use the
+        // newer contextp-> versions.
 
-        // Apply inputs
-        if (sc_time_stamp() > sc_time(1, SC_NS) && sc_time_stamp() < sc_time(100, SC_NS)) {
-            reset = 1;  // Assert reset
-        } else {
-            reset = 0;  // Deassert reset
+        contextp->timeInc(1);  // 1 timeprecision period passes...
+        // Historical note, before Verilator 4.200 a sc_time_stamp()
+        // function was required instead of using timeInc.  Once timeInc()
+        // is called (with non-zero), the Verilated libraries assume the
+        // new API, and sc_time_stamp() will no longer work.
+
+        // Toggle a fast (time/2 period) clock
+        top->CLK = !top->CLK;
+
+        // Toggle control signals on an edge that doesn't correspond
+        // to where the controls are sampled; in this example we do
+        // this only on a negedge of clk, because we know
+        // reset is not sampled there.
+        if (!top->CLK) {
+            if (contextp->time() > 1 && contextp->time() < 10) {
+                top->RST = 1;  // Assert reset
+            } else {
+                top->RST = 0;  // Deassert reset
+            }
         }
 
-        // Simulate 100ns
-        sc_start(1, SC_NS);
+        // Evaluate model
+        // (If you have multiple models being simulated in the same
+        // timestep then instead of eval(), call eval_step() on each, then
+        // eval_end_step() on each. See the manual.)
+        top->eval();
+/*
+        // Read outputs
+        VL_PRINTF("[%" PRId64 "] clk=%x rstl=%x iquad=%" PRIx64 " -> oquad=%" PRIx64
+                  " owide=%x_%08x_%08x\n",
+                  contextp->time(), top->clk, top->reset_l, top->in_quad, top->out_quad,
+                  top->out_wide[2], top->out_wide[1], top->out_wide[0]);
+*/    
     }
 
     // Final model cleanup
     top->final();
 
-    // Close trace if opened
-#if VM_TRACE
-    if (tfp) {
-        tfp->close();
-        tfp = nullptr;
-    }
-#endif
-
     // Coverage analysis (calling write only after the test is known to pass)
 #if VM_COVERAGE
     Verilated::mkdir("logs");
-    VerilatedCov::write("logs/coverage.dat");
+    contextp->coveragep()->write("logs/coverage.dat");
 #endif
 
     // Return good completion status
+    // Don't use exit() or destructor won't get called
     return 0;
 }

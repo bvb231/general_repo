@@ -16,6 +16,14 @@ ifneq ($(words $(CURDIR)),1)
  $(error Unsupported: GNU Make cannot build in directories containing spaces, build elsewhere: '$(CURDIR)')
 endif
 
+
+######################################################################
+# Test Cases Support Structure
+BOOST_ROOT = /usr/share/doc/libboost
+
+
+
+
 ######################################################################
 # Set up variables
 
@@ -31,13 +39,13 @@ VERILATOR = $(VERILATOR_ROOT)/bin/verilator
 VERILATOR_COVERAGE = $(VERILATOR_ROOT)/bin/verilator_coverage
 endif
 
-VERILATOR_FLAGS =
-# Generate SystemC in executable form
-VERILATOR_FLAGS += -sc --exe
+
+# Generate C++ in executable form
+VERILATOR_FLAGS += -cc --exe
 # Generate makefile dependencies (not shown as complicates the Makefile)
 #VERILATOR_FLAGS += -MMD
 # Optimize
-VERILATOR_FLAGS += -x-assign fast
+#VERILATOR_FLAGS += -x-assign fast
 # Warn abount lint issues; may not want this on less solid designs
 VERILATOR_FLAGS += -Wall
 # Make waveforms
@@ -46,6 +54,10 @@ VERILATOR_FLAGS += --trace
 VERILATOR_FLAGS += --assert
 # Generate coverage analysis
 VERILATOR_FLAGS += --coverage
+
+#Declare Top level for Verilation
+VERILATOR_FLAGS += --top network_engine
+
 # Run Verilator in debug mode
 #VERILATOR_FLAGS += --debug
 # Add this trace to get a backtrace in gdb
@@ -54,29 +66,21 @@ VERILATOR_FLAGS += --coverage
 VERILATOR_FLAGS += --build
 
 # Input files for Verilator
-VERILATOR_INPUT = -f input.vc network_engine.sv sim/network_engine_tb.cpp
-
-# Check if SC exists via a verilator call (empty if not)
-SYSTEMC_EXISTS := $(shell $(VERILATOR) --get-supported SYSTEMC)
-
+#VERILATOR_INPUT = -f input.vc 
+VERILATOR_INPUT += $(shell cat flist)
 ######################################################################
-
-ifneq ($(SYSTEMC_EXISTS),)
 default: run
-else
-default: nosc
-endif
 
 run:
 	@echo
-	@echo "-- Verilator Network Engine Test"
+	@echo "-- Verilator Network engine --"
 
 	@echo
 	@echo "-- VERILATE ----------------"
 	$(VERILATOR) $(VERILATOR_FLAGS) $(VERILATOR_INPUT)
 
 	@echo
-	@echo "-- COMPILE -----------------"
+	@echo "-- BUILD -------------------"
 # To compile, we can either
 # 1. Pass --build to Verilator by editing VERILATOR_FLAGS above.
 # 2. Or, run the make rules Verilator does:
@@ -103,12 +107,6 @@ run:
 
 ######################################################################
 # Other targets
-
-nosc:
-	@echo
-	@echo "%Skip: SYSTEMC_INCLUDE not in environment"
-	@echo "(If you have SystemC see the README, and rebuild Verilator)"
-	@echo
 
 show-config:
 	$(VERILATOR) -V
