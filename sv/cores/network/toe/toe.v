@@ -22,7 +22,6 @@ module toe
    initial begin
       $dumpfile("unit_test.vcd");
       $dumpvars(0,toe);
-      #1;
    end
 `endif
 

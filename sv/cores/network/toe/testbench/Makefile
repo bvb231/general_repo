@@ -1,4 +1,4 @@
-SIM ?= icarus
+SIM ?= verilator
 TOPLEVEL_LANG ?= verilog
 
 VERILOG_SOURCES += $(PWD)/../toe.v

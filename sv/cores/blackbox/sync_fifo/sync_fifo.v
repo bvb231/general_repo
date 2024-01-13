@@ -34,7 +34,7 @@ module sync_fifo
       $dumpvars(0,sync_fifo);
    end
 `endif
-
+/* verilator lint_off WIDTHEXPAND */
 wire input_valid;
 reg output_valid;
 
@@ -123,5 +123,5 @@ always@(posedge clk) begin
 end
 
 assign output_valid = m_axis_tvalid & m_axis_tready;
-
+/* verilator lint_on WIDTHEXPAND */
 endmodule
