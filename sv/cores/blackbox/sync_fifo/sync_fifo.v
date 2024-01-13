@@ -32,7 +32,6 @@ module sync_fifo
    initial begin
       $dumpfile("unit_test.vcd");
       $dumpvars(0,sync_fifo);
-      #1;
    end
 `endif
 

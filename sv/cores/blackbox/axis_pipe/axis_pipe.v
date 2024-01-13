@@ -17,14 +17,14 @@ module axis_pipe
 	output reg [P_DATA_WIDTH-1:0] m_axis_tdata
 );
 
+/*
 `ifdef COCOTB_SIM
    initial begin
       $dumpfile("unit_test.vcd");
       $dumpvars(0,axis_pipe);
-      #1;
    end
 `endif
-
+*/
 
 reg main_tvalid;
 reg [P_DATA_WIDTH-1:0] main_tdata;
