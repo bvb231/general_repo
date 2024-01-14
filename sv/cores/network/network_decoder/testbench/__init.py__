@@ -1,0 +1,6 @@
+import cocotb
+from cocotb.triggers import Timer
+
+from cocotb.clock import Clock
+from cocotb.runner import get_runner
+from cocotb.triggers import RisingEdge 

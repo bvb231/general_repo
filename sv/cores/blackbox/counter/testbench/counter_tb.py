@@ -5,6 +5,7 @@ from cocotb.clock import Clock
 from cocotb.runner import get_runner
 from cocotb.triggers import RisingEdge 
 
+
 @cocotb.test()
 async def my_first_test(dut):
     """Try accessing the design."""
