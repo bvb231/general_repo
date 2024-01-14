@@ -5,24 +5,14 @@ from cocotb.clock import Clock
 from cocotb.runner import get_runner
 from cocotb.triggers import RisingEdge 
 
-#We create this TB object in every test so that all the required functions can be accessed
-#from within this class. 
-class TB(object):
-    #The init method of this class can be used to do some setup like logging etc, start the 
-    #toggling of the clock and also initialize the internal to their pre-reset vlaue.
-    def __init__(self, dut):
-        self.dut = dut
-        clock = Clock(dut.CLK, 10, units="ns")  # Create a 10us period clock on port clk0
-        cocotb.start_soon(clock.start())  # Start the clock 		
-        #cocotb.fork(self.cycle_reset(dut))
 
+import sys
 
-    async def cycle_reset(self):
-        await RisingEdge(self.dut.CLK)  # Synchronize with the clock0
-        self.dut.RST.value = 1
-        for cycle in range(10):
-            await RisingEdge(self.dut.CLK)
-        self.dut.RST.value = 0
+#Importing User Libraries 
+sys.path.insert(0,"network_decoder_tb")
+#We import the big file that holds all of the imports for us
+from import_list import *
+
 
 
 
