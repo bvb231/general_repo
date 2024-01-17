@@ -5,6 +5,7 @@ from cocotb.clock import Clock
 from cocotb.runner import get_runner
 from cocotb.triggers import RisingEdge 
 
+#from remote_pdb import RemotePdb; rpdb = RemotePdb("127.0.0.1", 4000)
 
 @cocotb.test()
 async def my_first_test(dut):
@@ -15,7 +16,7 @@ async def my_first_test(dut):
     cocotb.start_soon(clock.start())  # Start the clock 
     await RisingEdge(dut.clock)  # Synchronize with the clock0
 
-
+    #rpdb.set_trace()  # <-- debugger stops execution after this line
     dut.reset.value = 1
     for cycle in range(10):
       await RisingEdge(dut.clock)
