@@ -4,6 +4,7 @@ from cocotb.triggers import Timer
 from cocotb.clock import Clock
 from cocotb.runner import get_runner
 from cocotb.triggers import RisingEdge 
+from scapy.all import * 
 
 
 import sys
@@ -34,5 +35,8 @@ async def smoke_test(dut):
     for cycle in range(10):
       await RisingEdge(dut.CLK)
     
+
+    packet = Ether()/IP(dst='8.8.8.8')/TCP(dport=53,flags='S')
+
 #    dut._log.info("my_signal_1 is %s", dut.count.value)
 
