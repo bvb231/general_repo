@@ -13,7 +13,7 @@ class Packet_bus_if:
 """
 class Packet_bus_frame:
      def __init__ (self, tdata=b''):
-          self.data = bytearray()
+          self.data = bytearray(tdata)
 
 class Packet_bus_diver:
 
