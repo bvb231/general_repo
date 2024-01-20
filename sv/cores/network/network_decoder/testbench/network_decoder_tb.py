@@ -38,9 +38,19 @@ async def smoke_test(dut):
     #Raw converts the packet to a byte array
     test = bytearray(raw(packet))
     
-#    foo = '0x'+foo
+
+    foo = test.hex()
+    print(foo)
+
+    bar = test[0:16].hex()
+    print(bar)
+
+
+    bar = test[8:16].hex()
+    print(bar)
 
     test = int.from_bytes(test[0:16], "big")
+    print(test)
     dut.i_data.value = test
     await RisingEdge(dut.CLK)
         
