@@ -32,20 +32,16 @@ async def smoke_test(dut):
       await RisingEdge(dut.CLK)
     
 
-    packet = Ether(src='aa:bb:cc:dd:ee:ff', dst='00:11:22:33:44:55')/IP(dst='8.8.8.8')/UDP(dport=123)
+    packet = Ether(src='aa:bb:cc:dd:ee:ff', dst='88:11:22:33:44:55')/IP(dst='8.8.8.8')/UDP(dport=123)
 
 
     #Raw converts the packet to a byte array
     test = bytearray(raw(packet))
-    print(test.hex())
-    foo = test[0:15].hex()
-    print(foo)
-
+    
 #    foo = '0x'+foo
 
-    test = 0xbadf00d
-    test_2 = repr(foo)
-    dut.i_data.value = int.from_bytes(foo, "big")
+    test = int.from_bytes(test[0:16], "big")
+    dut.i_data.value = test
     await RisingEdge(dut.CLK)
         
 #    dut._log.info("my_signal_1 is %s", dut.count.value)
