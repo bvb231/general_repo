@@ -37,6 +37,12 @@ class Packet_bus_diver:
         self.byte_count = byte_count
 
 
+    async def drive_to_bus(self):
+        print("hello world")
+        #todo
+        
+
+
     async def _run(self):
     
         clock_edge_event = RisingEdge(self.clock)
@@ -44,9 +50,37 @@ class Packet_bus_diver:
         while True:
             #until we have a synchronoizing event
             await clock_edge_event
+            
+            #Default values for the bus
+            self.valid = 0
+            self.sop = 0
+            self.eop = 0
+            self.ebp = 0
+            self.byte_count = 0
             #If there's data in the queue for us to process
             # go into the loop.
             if not self.queue.empty():
                 frame = self.queue.get_nowait()
-                data = len(frame.data)
-                self.log.info("TX Data Sent: %s", data)            
+
+                #While we still have data within the frame,
+                #continue on the sending loop
+                while(len(frame.data) != 0):                                        
+                    await clock_edge_event
+                    #TODO - SOP needs to be set
+                    self.eop = 0
+                    self.valid = 1
+                    #self.data = len(frame.data)
+                    #If the length of the data minus
+                    if(len(frame.data)<16):
+                        self.data = int.from_bytes(frame.data[0:len(frame.data)])
+                        frame.data = frame.data[len(frame.data):]
+                        self.eop = 1
+                    if(len(frame.data)==16):
+                        self.data = int.from_bytes(frame.data[0:len(frame.data)])
+                        frame.data = frame.data[len(frame.data):]
+                        self.eop = 1
+                    else:
+                        self.data = int.from_bytes(frame.data[0:16])
+                        frame.data = frame.data[16:]
+                    
+                    #self.log.info("TX Data Sent: %s", data)            
