@@ -26,7 +26,7 @@ class Packet_bus_diver:
         self.queue = Queue()
         #TODO: We will want to have this in some sort of reset function.
         #but for now this is something that can live here. 
-        self._run = cocotb.start_soon(self._run())
+        self._runfoo = cocotb.start_soon(self._run())
         self.clock = clock
         self.reset = reset
         self.valid = valid
@@ -36,11 +36,15 @@ class Packet_bus_diver:
         self.ebp = ebp
         self.byte_count = byte_count
 
-
-    async def drive_to_bus(self):
+    
+    async def drive_to_bus(self, obj):
+        '''
+        Main entrant function that's used to push data to
+        the bus
+        '''
+        await self.queue.put(obj)        
         print("hello world")
         #todo
-        
 
 
     async def _run(self):
@@ -60,6 +64,7 @@ class Packet_bus_diver:
             #If there's data in the queue for us to process
             # go into the loop.
             if not self.queue.empty():
+                print("In _run")
                 frame = self.queue.get_nowait()
 
                 #While we still have data within the frame,
