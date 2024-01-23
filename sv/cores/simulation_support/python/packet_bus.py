@@ -71,7 +71,6 @@ class Packet_bus_diver:
                 #continue on the sending loop
                 while(len(frame.data) != 0):                                        
                     await clock_edge_event
-                    #TODO - SOP needs to be set
                     
                     if(sop_set == 0):
                         self.sop.value = 1
@@ -80,11 +79,9 @@ class Packet_bus_diver:
                         self.sop.value = 0
 
                     self.valid.value = 1
-                    
                     if(len(frame.data)<=16):
                         self.data.value = int.from_bytes(frame.data[0:len(frame.data)],"big")
                         self.byte_count.value = len(frame.data)-1
-                        
                         self.eop.value = 1
                         
                         #Here we null the frame data for our next check
