@@ -54,13 +54,13 @@ class Packet_bus_diver:
         while True:
             #until we have a synchronoizing event
             await clock_edge_event
-            
+            sop_set = 0
             #Default values for the bus
-            self.valid = 0
-            self.sop = 0
-            self.eop = 0
-            self.ebp = 0
-            self.byte_count = 0
+            self.valid.value = 0
+            self.sop.value = 0
+            self.eop.value = 0
+            self.ebp.value = 0
+            self.byte_count.value = 0
             #If there's data in the queue for us to process
             # go into the loop.
             if not self.queue.empty():
@@ -72,20 +72,26 @@ class Packet_bus_diver:
                 while(len(frame.data) != 0):                                        
                     await clock_edge_event
                     #TODO - SOP needs to be set
-                    self.eop = 0
-                    self.valid = 1
-                    #self.data = len(frame.data)
-                    #If the length of the data minus
-                    if(len(frame.data)<16):
-                        self.data = int.from_bytes(frame.data[0:len(frame.data)])
-                        frame.data = frame.data[len(frame.data):]
-                        self.eop = 1
-                    if(len(frame.data)==16):
-                        self.data = int.from_bytes(frame.data[0:len(frame.data)])
-                        frame.data = frame.data[len(frame.data):]
-                        self.eop = 1
-                    else:
-                        self.data = int.from_bytes(frame.data[0:16])
-                        frame.data = frame.data[16:]
                     
+                    if(sop_set == 0):
+                        self.sop.value = 1
+                        sop_set = 1
+                    else:
+                        self.sop.value = 0
+
+                    self.valid.value = 1
+                    
+                    if(len(frame.data)<=16):
+                        self.data.value = int.from_bytes(frame.data[0:len(frame.data)],"big")
+                        self.byte_count.value = len(frame.data)-1
+                        
+                        self.eop.value = 1
+                        
+                        #Here we null the frame data for our next check
+                        #TODO - There should be a cleaner way to do this as a whole
+                        frame.data = frame.data[len(frame.data):] 
+                    else:
+                        self.data.value = int.from_bytes(frame.data[0:16],"big")
+                        frame.data = frame.data[16:]
+                        self.byte_count.value = 15
                     #self.log.info("TX Data Sent: %s", data)            

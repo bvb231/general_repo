@@ -22,7 +22,7 @@ async def smoke_test(dut):
     #creating a testbench object for this dut. __init__ function is run automatically
     #By having this, we effectively has some sort of "setup" functionality within COCO-TB
     tb = TB(dut)
-    driver = Packet_bus_diver(dut.CLK, dut.RST, dut.i_valid, dut.i_sop,dut.i_eop, dut.i_data,dut.i_ebp,dut.i_byte_cnt)
+    driver = Packet_bus_diver(dut.CLK, dut.RST, dut.i_valid, dut.i_sop ,dut.i_eop, dut.i_data, dut.i_ebp, dut.i_byte_cnt)
 
     #Becuase the cycle reset function is async, we need the await keyword for it
     await tb.cycle_reset()
@@ -53,7 +53,9 @@ async def smoke_test(dut):
     test = int.from_bytes(test[0:16], "big")
     print(test)
     #dut.i_data.value = test
-    await RisingEdge(dut.CLK)
+    
+    for i in range(100):
+        await RisingEdge(dut.CLK)
         
 #    dut._log.info("my_signal_1 is %s", dut.count.value)
 
