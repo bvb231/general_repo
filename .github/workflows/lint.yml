@@ -19,5 +19,3 @@ jobs:
             ./*
       - name: Run Verible action
         uses: chipsalliance/verible-linter-action@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
