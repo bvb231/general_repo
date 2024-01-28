@@ -1,19 +1,13 @@
-name: Verible linter example
+name: Lint
 on:
-  pull_request_target: master
-
+  pull_request:
 jobs:
-   lint:
-      runs-on: ubuntu-latest
-   
-   permissions:
-      checks: write
-      contents: read
-      pull-requests: write
-   steps:
-      - uses: actions/checkout@v3
-        with:
-         ref: ${{ github.event.pull_request.head.sha }}
-        
-        exclude_paths: |
-            ./*
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: chipsalliance/verible-linter-action@main
+      with:
+         paths: |
+            ./sv/cores/blackbox
+        github_token: ${{ secrets.GITHUB_TOKEN }}
