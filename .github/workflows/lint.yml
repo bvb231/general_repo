@@ -5,6 +5,10 @@ on:
 jobs:
  lint:
     runs-on: ubuntu-latest
+    
+    permissions:
+      pull-requests: write
+    
     steps:
     - uses: actions/checkout@master
     - uses: chipsalliance/verible-linter-action@main
