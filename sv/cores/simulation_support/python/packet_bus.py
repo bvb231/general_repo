@@ -3,8 +3,10 @@ from cocotb.triggers import RisingEdge
 from cocotb.queue import Queue, QueueFull
 import random
 
+# General TODO - There should be a base class that moves all common code around. 
 
-#Having aa block comment is a nice to have, but
+
+#Having a block comment is a nice to have, but
 # it's not something I want to deal with right now.
 """
 class Packet_bus_if:
@@ -15,7 +17,7 @@ class Packet_bus_frame:
      def __init__ (self, tdata=b''):
           self.data = bytearray(tdata)
 
-class Packet_bus_diver:
+class Packet_bus_driver:
 
     #Driver constructor. 
     #Still not fully fleshed out. 
@@ -92,3 +94,14 @@ class Packet_bus_diver:
                         frame.data = frame.data[16:]
                         self.byte_count.value = 15
                     #self.log.info("TX Data Sent: %s", data)            
+
+
+
+
+class packet_bus_sink(self):
+    print("packet bus sink, hello world")
+
+
+
+class packet_bus_monitor(self):
+    print("packet bus monitor, hello world")
