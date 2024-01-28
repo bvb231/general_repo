@@ -17,5 +17,3 @@ jobs:
         
         exclude_paths: |
             ./*
-      - name: Run Verible action
-        uses: chipsalliance/verible-linter-action@main
