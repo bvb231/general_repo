@@ -10,4 +10,4 @@ jobs:
       with:
          paths: |
             ./sv/cores/blackbox
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+         github_token: ${{ secrets.GITHUB_TOKEN }}
