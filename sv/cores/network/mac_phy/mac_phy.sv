@@ -9,6 +9,9 @@ module mac_phy (
     output logic TX_ERR,
     output logic TX_CLK,
 
+
+    input logic RX_CLK_EN,
+    input logic RX_MII_SEL,
     input logic [7:0] RX_D,
     input logic RX_EN,
     input logic RX_ERR,
