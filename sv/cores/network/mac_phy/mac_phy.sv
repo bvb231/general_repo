@@ -1,6 +1,6 @@
 module mac_phy (
     input logic CLK,
-
+    input logic RST,
     /*
         TX AND RX are both are @ 125 MHz
     */
@@ -19,6 +19,19 @@ module mac_phy (
   /*TX FIFO Interface*/
 
   /*RX FIFO Interface*/
+
+  gmii_rx RX_MODULE (
+      .CLK(RX_CLK),
+      .RST(RST),
+
+      .RX_D  (RX_D),
+      .RX_EN (RX_EN),
+      .RX_ERR(RX_ERR),
+
+      .o_valid(),
+      .o_data(),
+      .o_byte_cnt()
+  );
 
 
 
